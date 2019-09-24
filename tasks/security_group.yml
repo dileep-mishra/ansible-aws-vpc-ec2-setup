@@ -1,0 +1,14 @@
+---
+
+    - name:               Create Main Security Group
+      ec2_group:
+        name:             "My Security Group"
+        description:      "My Security Group"
+        vpc_id:           "{{ vpc_id }}"
+        region:           "{{ region }}"
+        rules:
+          - proto:        "tcp"
+            from_port:    "22"
+            to_port:      "22"
+            cidr_ip:      "0.0.0.0/0"
+      register: security_group  

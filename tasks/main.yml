@@ -1,0 +1,6 @@
+---
+# tasks file for aws_access
+
+ - import_tasks: vpc.yml
+ - import_tasks: security_group.yml
+ - import_tasks: create_ec2.yml

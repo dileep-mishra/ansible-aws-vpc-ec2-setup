@@ -1,0 +1,58 @@
+---
+        - name: Create VPC
+          ec2_vpc_net:
+           name:             "{{ vpc_name }}"
+           cidr_block:       "{{ vpc_cidr }}"
+           region:           "{{ region }}"
+           state:            "present"
+          register: my_vpc
+
+        - name: Set VPC ID in variable
+          set_fact:
+            vpc_id:           "{{ my_vpc.vpc.id }}"
+
+
+        - name: Create Public Subnet
+          ec2_vpc_subnet:
+           state:            "present"
+           vpc_id:           "{{ vpc_id }}"
+           cidr:             "{{ pub_subnet_1_cidr }}"
+           az:               "{{ region }}a"
+           region:           "{{ region }}"
+           resource_tags:
+             Name:           "{{subnet_name1}}"
+          register: my_public_subnet
+  
+        - name: Set Public Subnet ID in variable
+          set_fact:
+            public_subnet_id: "{{ my_public_subnet.subnet.id }}"
+
+        - name: Create Internet Gateway for VPC
+          ec2_vpc_igw:
+            vpc_id:           "{{ vpc_id }}"
+            region:           "{{ region }}"
+            state:            "present"
+            resource_tags:
+              Name:           "{{igw_name}}"
+          register: my_vpc_igw
+
+        - name:               Set Internet Gateway ID in variable
+          set_fact:
+           igw_id:           "{{ my_vpc_igw.gateway_id }}"
+
+
+        - name:               Set up public subnet route table
+          ec2_vpc_route_table:
+           vpc_id:           "{{ vpc_id }}"
+           region:           "{{ region }}"
+           tags:
+            Name:           "Ansible_Public"
+           subnets:
+            - "{{ public_subnet_id }}"
+           routes:
+            - dest:         "0.0.0.0/0"
+              gateway_id:   "{{ igw_id }}"
+
+
+
+
